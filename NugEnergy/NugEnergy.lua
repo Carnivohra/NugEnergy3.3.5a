@@ -1,109 +1,104 @@
-NugEnergy = CreateFrame("Frame","NugEnergy")
+NugEnergy = CreateFrame("Frame", "NugEnergy")
+media = LibStub("LibSharedMedia-3.0")
 
 NugEnergy:SetScript("OnEvent", function(self, event, ...)
 	self[event](self, event, ...)
 end)
 
-media = LibStub("LibSharedMedia-3.0")
-
 NugEnergy:RegisterEvent("ADDON_LOADED")
-
---~ function print(s)
---~     DEFAULT_CHAT_FRAME:AddMessage(s)
---~ end
-
-function NugEnergy.ADDON_LOADED(self,event,arg1)
-    if arg1 == "NugEnergy" then
-        NugEnergyDB = NugEnergyDB or {}
-        NugEnergyDB.posX = NugEnergyDB.posX or 0
-        NugEnergyDB.posY = NugEnergyDB.posY or 0
-        NugEnergyDB.align = NugEnergyDB.align or "CENTER"
-        NugEnergyDB.visibility = NugEnergyDB.visibility or "Stealth"
---~         NugEnergyDB.scale = NugEnergyDB.scale or 1.0
-        NugEnergyDB.font = NugEnergyDB.font or "Emblem"
-        NugEnergyDB.fontSize = NugEnergyDB.fontSize or 35
-        NugEnergyDB.energyColor = NugEnergyDB.energyColor or {1,0.5,0.1}
-        NugEnergyDB.rageColor = NugEnergyDB.rageColor or {1,0.2,0.2}
-        
-        NugEnergyDB.ticker = NugEnergyDB.ticker or {}
-        NugEnergyDB.ticker.color = NugEnergyDB.ticker.color or {1,0.8,0.1}
-        NugEnergyDB.ticker.alphaBG = NugEnergyDB.ticker.alphaBG or 0.5
-        NugEnergyDB.ticker.offsetX = NugEnergyDB.ticker.offsetX or 0
-        NugEnergyDB.ticker.offsetY = NugEnergyDB.ticker.offsetY or -20
-        NugEnergyDB.ticker.width = NugEnergyDB.ticker.width or 60
-        NugEnergyDB.ticker.height = NugEnergyDB.ticker.height or 10
-        NugEnergyDB.ticker.texture = NugEnergyDB.ticker.texture or "Aluminium"
-    
-        _, NugEnergy.class = UnitClass("player");
-        if NugEnergy.class == "ROGUE" then
-            NugEnergy.color = NugEnergyDB.energyColor
-            NugEnergy.frame, NugEnergy.text = NugEnergy.CreateFrame(60,50,"NugEnergyFrame")
-            NugEnergy.ticker = NugEnergy.CreateTickerFrame("NugEnergyTicker")
-            NugEnergy:RegisterEvent("UNIT_ENERGY")
---~             NugEnergy:RegisterEvent("UNIT_MAXENERGY")
-        elseif NugEnergy.class == "WARRIOR" then
-            NugEnergy.color = NugEnergyDB.rageColor
-            NugEnergy.frame, NugEnergy.text = NugEnergy.CreateFrame(60,50,"NugEnergyFrame")
-            NugEnergy:RegisterEvent("UNIT_RAGE")
---~             NugEnergy:RegisterEvent("UNIT_MAXRAGE")
-            NugEnergy.UNIT_RAGE = NugEnergy.UNIT_ENERGY
---~             NugEnergy.UNIT_MAXRAGE = NugEnergy.UNIT_MAXENERGY
-        elseif NugEnergy.class == "DRUID" then
-            NugEnergy.color = NugEnergyDB.energyColor
-            NugEnergy.frame, NugEnergy.text = NugEnergy.CreateFrame(60,50,"NugEnergyFrame")
-            NugEnergy.ticker = NugEnergy.CreateTickerFrame("NugEnergyTicker")
---~             NugEnergy:RegisterEvent("UNIT_ENERGY")
---~             NugEnergy:RegisterEvent("UNIT_RAGE")
---~             NugEnergy:RegisterEvent("UNIT_MAXRAGE")
-            NugEnergy.UNIT_RAGE = NugEnergy.UNIT_ENERGY
-        else
-            NugEnergy:UnregisterEvent("ADDON_LOADED")
-            return
-        end
-        
-        NugEnergy.UpdateBehavior(NugEnergyDB.visibility)
-        
-        NugEnergy:RegisterEvent("PLAYER_ENTERING_WORLD")
-        NugEnergy.PLAYER_ENTERING_WORLD = NugEnergy.UNIT_ENERGY
-        NugEnergy.MakeOptions()
+function NugEnergy.ADDON_LOADED(_, _, addonName)
+    if addonName ~= "NugEnergy" then
+        return
     end
+
+    NugEnergyDB = NugEnergyDB or {}
+    NugEnergyDB.posX = NugEnergyDB.posX or 0
+    NugEnergyDB.posY = NugEnergyDB.posY or 0
+    NugEnergyDB.align = NugEnergyDB.align or "CENTER"
+    NugEnergyDB.visibility = NugEnergyDB.visibility or "Always"
+    NugEnergyDB.font = NugEnergyDB.font or "Emblem"
+    NugEnergyDB.fontSize = NugEnergyDB.fontSize or 35
+    NugEnergyDB.energyColor = NugEnergyDB.energyColor or {1, 0.5, 0.1}
+    NugEnergyDB.rageColor = NugEnergyDB.rageColor or {1, 0.2, 0.2}
+
+    NugEnergyDB.ticker = NugEnergyDB.ticker or {}
+    NugEnergyDB.ticker.color = NugEnergyDB.ticker.color or {1, 0.8, 0.1}
+    NugEnergyDB.ticker.alphaBG = NugEnergyDB.ticker.alphaBG or 0.5
+    NugEnergyDB.ticker.offsetX = NugEnergyDB.ticker.offsetX or 0
+    NugEnergyDB.ticker.offsetY = NugEnergyDB.ticker.offsetY or -20
+    NugEnergyDB.ticker.width = NugEnergyDB.ticker.width or 60
+    NugEnergyDB.ticker.height = NugEnergyDB.ticker.height or 10
+    NugEnergyDB.ticker.texture = NugEnergyDB.ticker.texture or "Aluminium"
+
+    _, NugEnergy.class = UnitClass("player")
+
+    if NugEnergy.class == "ROGUE" then
+        NugEnergy.color = NugEnergyDB.energyColor
+        NugEnergy.frame, NugEnergy.text = NugEnergy.CreateFrame(60, 50, "NugEnergyFrame")
+        NugEnergy.ticker = NugEnergy.CreateTickerFrame("NugEnergyTicker")
+        NugEnergy:RegisterEvent("UNIT_ENERGY")
+
+    elseif NugEnergy.class == "WARRIOR" then
+        NugEnergy.color = NugEnergyDB.rageColor
+        NugEnergy.frame, NugEnergy.text = NugEnergy.CreateFrame(60, 50, "NugEnergyFrame")
+        NugEnergy:RegisterEvent("UNIT_RAGE")
+        NugEnergy.UNIT_RAGE = NugEnergy.UNIT_ENERGY
+
+    elseif NugEnergy.class == "DRUID" then
+        NugEnergy.color = NugEnergyDB.energyColor
+        NugEnergy.frame, NugEnergy.text = NugEnergy.CreateFrame(60, 50, "NugEnergyFrame")
+        NugEnergy.ticker = NugEnergy.CreateTickerFrame("NugEnergyTicker")
+        NugEnergy.UNIT_RAGE = NugEnergy.UNIT_ENERGY
+
+    else
+        return
+    end
+
+    NugEnergy.UpdateBehavior(NugEnergyDB.visibility)
+    NugEnergy:RegisterEvent("PLAYER_ENTERING_WORLD")
+    NugEnergy.PLAYER_ENTERING_WORLD = NugEnergy.UNIT_ENERGY
+    NugEnergy.MakeOptions()
 end
 
---~ function NugEnergy.PLAYER_ENTERING_WORLD(self)
---~     self:UNIT_ENERGY()
---~     self:UNIT_MAXENERGY()
---~ end
-
-function NugEnergy.UNIT_ENERGY(self)
+function NugEnergy.UNIT_ENERGY()
     NugEnergy.text:SetText(UnitMana("player"))
     local newEnergy = UnitMana("player")
+
     if newEnergy > NugEnergy.currentEnergy then
---~         if GetTime() > NugEnergy.lastTime + 1.9 then 
-        if newEnergy >= NugEnergy.currentEnergy+19 and newEnergy <= NugEnergy.currentEnergy+21 then
+        if newEnergy >= NugEnergy.currentEnergy + 19 and newEnergy <= NugEnergy.currentEnergy + 21 then
             NugEnergy.lastTime = GetTime()
         end
     end
+
     NugEnergy.currentEnergy = UnitMana("player")
 end
 
 function NugEnergy.UpdateBehavior(state)
-    if NugEnergy.class == "WARRIOR" and state == "Stealth" then state = "Combat" end
+    if NugEnergy.class == "WARRIOR" and state == "Stealth" then
+        state = "Combat"
+    end
+
     if NugEnergy.class == "DRUID" then
-        if state == "Combat" then state = "Stealth" end
-        if state == "Always" then
-            NugEnergy:RegisterEvent("UPDATE_SHAPESHIFT_FORM");
+        if state == "Combat" then
+            state = "Stealth"
+
+        elseif state == "Always" then
+            NugEnergy:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
             NugEnergy.UPDATE_SHAPESHIFT_FORM()
             return
         end
     end
+
     if state == "Stealth" then
         NugEnergy:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
         NugEnergy:RegisterEvent("PLAYER_REGEN_ENABLED")
         NugEnergy:RegisterEvent("PLAYER_REGEN_DISABLED")
+
     elseif state == "Combat" then
         NugEnergy:UnregisterEvent("UPDATE_SHAPESHIFT_FORM")
         NugEnergy:RegisterEvent("PLAYER_REGEN_ENABLED")
         NugEnergy:RegisterEvent("PLAYER_REGEN_DISABLED")
+
     elseif state == "Always" then
         NugEnergy:UnregisterEvent("UPDATE_SHAPESHIFT_FORM")
         NugEnergy:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -111,7 +106,6 @@ function NugEnergy.UpdateBehavior(state)
         NugEnergy.frame:Show()
         NugEnergyTicker:Show()
     end
-        
 end
 
 function NugEnergy.UpdateHide(state)
@@ -119,65 +113,82 @@ function NugEnergy.UpdateHide(state)
         if NugEnergy.class == "DRUID" then
             local _, _, bear_active, _ = GetShapeshiftFormInfo(1)
             local _, _, cat_active, _ = GetShapeshiftFormInfo(3)
+
             if bear_active == 1 then
                 if not NugEnergy.frame:IsVisible() then
                     NugEnergy.frame:Show()
                     NugEnergyTicker:Hide()
                 end
+
             elseif cat_active == 1 then
                 if not NugEnergy.frame:IsVisible() then
                     NugEnergy.frame:Show()
                     NugEnergyTicker:Show()
                 end
+
             else
                 NugEnergy.frame:Hide()
                 NugEnergyTicker:Hide()
             end
+
         else
             if not NugEnergy.frame:IsVisible() then
                 NugEnergy.frame:Show()
-                if NugEnergyTicker then NugEnergyTicker:Show() end
+
+                if NugEnergyTicker then
+                    NugEnergyTicker:Show()
+                end
             end
         end
     end
-    if state == "Stealth" and ( NugEnergy.stealth or NugEnergy.combat ) then
+
+    if state == "Stealth" and (NugEnergy.stealth or NugEnergy.combat) then
         show()
         return true
+
     elseif state == "Combat" and NugEnergy.combat then
         show()
         return true
+
     elseif state == "Always" then
         show()
         return true
+
     else
         NugEnergy.frame:Hide()
-        if NugEnergyTicker then NugEnergyTicker:Hide() end
+
+        if NugEnergyTicker then
+            NugEnergyTicker:Hide()
+        end
     end
     return nil
 end
 
 function NugEnergy.UPDATE_SHAPESHIFT_FORM()
---~     print("hi")
     if NugEnergy.class == "ROGUE" then
-        local _, name, active, _ = GetShapeshiftFormInfo(1)
+        local _, _, active, _ = GetShapeshiftFormInfo(1)
+
         if active == 1 then
             NugEnergy.stealth = true
         else
             NugEnergy.stealth = false
         end
+
         NugEnergy.UpdateHide(NugEnergyDB.visibility)
+
     elseif NugEnergy.class == "DRUID" then
         local _, _, bear_active, _ = GetShapeshiftFormInfo(1)
         local _, _, cat_active, _ = GetShapeshiftFormInfo(3)
+
         if bear_active == 1 then
             NugEnergy:RegisterEvent("UNIT_RAGE")
             NugEnergy:UnregisterEvent("UNIT_ENERGY")
             NugEnergy:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
             NugEnergy.color = NugEnergyDB.rageColor
             NugEnergy.text:SetVertexColor(unpack(NugEnergy.color))
-            
             NugEnergy.UNIT_ENERGY()
             NugEnergy.UpdateHide(NugEnergyDB.visibility)
+
         elseif cat_active == 1 then
             NugEnergy:UnregisterEvent("UNIT_RAGE")
             NugEnergy:RegisterEvent("UNIT_ENERGY")
@@ -186,9 +197,9 @@ function NugEnergy.UPDATE_SHAPESHIFT_FORM()
             NugEnergy.currentEnergy = UnitMana("player")
             NugEnergy.color = NugEnergyDB.energyColor
             NugEnergy.text:SetVertexColor(unpack(NugEnergy.color))
-            
             NugEnergy.UNIT_ENERGY()
             NugEnergy.UpdateHide(NugEnergyDB.visibility)
+
         else
             NugEnergy:UnregisterEvent("UNIT_RAGE")
             NugEnergy:UnregisterEvent("UNIT_ENERGY")
@@ -196,75 +207,86 @@ function NugEnergy.UPDATE_SHAPESHIFT_FORM()
             NugEnergy.UpdateHide(NugEnergyDB.visibility)
         end
     end
-    
 end
+
 function NugEnergy.PLAYER_REGEN_ENABLED()
     NugEnergy.combat = false
     NugEnergy.UpdateHide(NugEnergyDB.visibility)
 end
+
 function NugEnergy.PLAYER_REGEN_DISABLED()
     NugEnergy.combat = true
     NugEnergy.UpdateHide(NugEnergyDB.visibility)
 end
-function NugEnergy.COMBAT_LOG_EVENT_UNFILTERED(self, event, timestamp, eventType, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName, spellSchool, auraType)
-    
+
+function NugEnergy.COMBAT_LOG_EVENT_UNFILTERED(_, _, _, eventType, _, _, _, _, _, dstFlags, _, spellName, _, auraType)
     local isDestPlayer = (bit.band(dstFlags, COMBATLOG_OBJECT_TYPE_PLAYER) == COMBATLOG_OBJECT_TYPE_PLAYER)
-    
-    if isDestPlayer and auraType == "BUFF" and string.find(spellName,"Prowl") ~= nil then
-        if     eventType == "SPELL_AURA_APPLIED" then
+
+    if not isDestPlayer then
+        return
+    end
+
+    if auraType == "BUFF" and string.find(spellName, "Prowl") ~= nil then
+        if eventType == "SPELL_AURA_APPLIED" then
             NugEnergy.stealth = true
         end
-        if  (  eventType == "SPELL_AURA_REMOVED"
-            or eventType == "SPELL_AURA_DISPELLED" ) then
+
+        if  eventType == "SPELL_AURA_REMOVED" or eventType == "SPELL_AURA_DISPELLED" then
             NugEnergy.stealth = false
         end
+
         NugEnergy.UpdateHide(NugEnergyDB.visibility)
     end
 end
---~ function NugEnergy.UNIT_MAXENERGY(self)
---~     self.energyMax = UnitManaMax("player")
---~ end
 
 function NugEnergy.MakeOptions(self)
-
     local alignValues = {
-        ["LEFT"]        = "Left",
-        ["CENTER"]      = "Center",
-        ["RIGHT"]       = "Right",
+        ["LEFT"] = "Left",
+        ["CENTER"] = "Center",
+        ["RIGHT"] = "Right",
     }
     local visibilityValues = {
-        ["Stealth"]     = "Stealth",
-        ["Combat"]     = "Combat",
-        ["Always"]     = "Always",
+        ["Stealth"] = "Stealth",
+        ["Combat"] = "Combat",
+        ["Always"] = "Always",
     }
-    
-    local fonts,bars = {},{}
-    for i,v in pairs(media:List('font')) do
+
+    local fonts,bars = {}, {}
+
+    for _, v in pairs(media:List('font')) do
         fonts[v] = v
     end
-    for i,v in pairs(media:List('statusbar')) do
+
+    for _, v in pairs(media:List('statusbar')) do
         bars[v] = v
     end
+
     media.RegisterCallback(NugEnergy, "LibSharedMedia_Registered",
-        function(event, mediatype, key)
-            if mediatype == 'font' then
+        function(_, mediatype, key)
+            if mediatype == "font" then
                 fonts[key] = key
+
                 if key == NugEnergyDB.font then
-                    NugEnergy.text:SetFont(media:Fetch('font',NugEnergyDB.font),NugEnergyDB.fontSize)
+                    NugEnergy.text:SetFont(media:Fetch("font", NugEnergyDB.font), NugEnergyDB.fontSize)
                 end
-            elseif mediatype == 'statusbar' then
+
+            elseif mediatype == "statusbar" then
                 bars[key] = key
+
                 if key == NugEnergyDB.ticker.texture then
-                    if NugEnergyTickerBar then NugEnergyTickerBar:SetTexture(media:Fetch('statusbar',NugEnergyDB.ticker.texture)) end
+                    if NugEnergyTickerBar then 
+                        NugEnergyTickerBar:SetTexture(media:Fetch("statusbar", NugEnergyDB.ticker.texture))
+                    end
                 end
             end
         end)
 
     local opt = {
-		type = 'group',
+		type = "group",
         name = "NugEnergy",
         args = {},
 	}
+
     opt.args.general = {
         type = "group",
         name = "General",
@@ -281,22 +303,22 @@ function NugEnergy.MakeOptions(self)
                         type = "range",
                         desc = "Horizontal position, relative to center",
                         get = function(info) return NugEnergyDB.posX end,
-                        set = function(info, s) NugEnergyDB.posX = s; NugEnergy.frame:SetPoint("CENTER",UIParent,"CENTER",NugEnergyDB.posX,NugEnergyDB.posY); end,
+                        set = function(info, s) NugEnergyDB.posX = s; NugEnergy.frame:SetPoint("CENTER", UIParent, "CENTER", NugEnergyDB.posX, NugEnergyDB.posY); end,
                         min = -900,
                         max = 900,
-                        step = 5,
+                        step = 5
                     },
                     posY = {
                         name = "Pos Y",
                         type = "range",
                         desc = "Vertical position, relative to center",
                         get = function(info) return NugEnergyDB.posY end,
-                        set = function(info, s) NugEnergyDB.posY = s; NugEnergy.frame:SetPoint("CENTER",UIParent,"CENTER",NugEnergyDB.posX,NugEnergyDB.posY); end,
+                        set = function(info, s) NugEnergyDB.posY = s; NugEnergy.frame:SetPoint("CENTER", UIParent, "CENTER", NugEnergyDB.posX, NugEnergyDB.posY); end,
                         min = -700,
                         max = 700,
-                        step = 5,
-                    },
-                },
+                        step = 5
+                    }
+                }
             },
             showScale = {
                 type = "group",
@@ -304,28 +326,18 @@ function NugEnergy.MakeOptions(self)
                 guiInline = true,
                 order = 2,
                 args = {
---~                     scale = {
---~                         name = "Scale",
---~                         type = "range",
---~                         desc = "Change scale",
---~                         get = function(info) return NugEnergyDB.scale end,
---~                         set = function(info, s) NugEnergyDB.scale = s; NugEnergy.frame:SetScale(NugEnergyDB.scale); end,
---~                         min = 0.4,
---~                         max = 2,
---~                         step = 0.2,
---~                     },
                     align = {
                         type = "select",
                         name = "Align",
                         desc = "Align of text",
                         values = alignValues,
-                        get = function(info)
+                        get = function()
                             return NugEnergyDB.align
                         end,
-                        set = function(info, s)
+                        set = function(_, s)
                             NugEnergyDB.align = s
                             NugEnergy.text:SetJustifyH(NugEnergyDB.align)
-                        end,
+                        end
                     },
                     font = {
                         type = "select",
@@ -333,40 +345,42 @@ function NugEnergy.MakeOptions(self)
                         desc = "Choose font",
                         values = fonts,
                         order = 1,
-                        get = function(info)
+                        get = function()
                             return NugEnergyDB.font
                         end,
-                        set = function(info, s)
+                        set = function(_, s)
                             NugEnergyDB.font = s
-                            NugEnergy.text:SetFont(media:Fetch('font',NugEnergyDB.font),NugEnergyDB.fontSize)
-                        end,
+                            NugEnergy.text:SetFont(media:Fetch("font", NugEnergyDB.font),NugEnergyDB.fontSize)
+                        end
                     },
                     fontSize = {
                         name = "Font Size",
                         type = "range",
                         order = 2,
-                        get = function(info) return NugEnergyDB.fontSize end,
-                        set = function(info, s)
-                            NugEnergyDB.fontSize = s;
-                            NugEnergy.text:SetFont(media:Fetch('font',NugEnergyDB.font),NugEnergyDB.fontSize)
+                        get = function()
+                            return NugEnergyDB.fontSize
+                        end,
+                        set = function(_, s)
+                            NugEnergyDB.fontSize = s
+                            NugEnergy.text:SetFont(media:Fetch("font", NugEnergyDB.font),NugEnergyDB.fontSize)
                         end,
                         min = 5,
                         max = 35,
-                        step = 1,
+                        step = 1
                     },
                     visibility = {
                         type = "select",
                         name = "Visible when...",
                         desc = "",
                         values = visibilityValues,
-                        get = function(info)
+                        get = function()
                             return NugEnergyDB.visibility
                         end,
-                        set = function(info, s)
+                        set = function(_, s)
                             NugEnergyDB.visibility = s
                             NugEnergy.UpdateBehavior(NugEnergyDB.visibility)
-                        end,
-                    },
+                        end
+                    }
                 }
             },
             showColors = {
@@ -377,64 +391,72 @@ function NugEnergy.MakeOptions(self)
                 args = {
                     energyColor = {
                         name = "Energy Color",
-                        type = 'color',
+                        type = "color",
                         desc = "energy color",
                         order = 1,
-                        get = function(info)
-                            local r,g,b = unpack(NugEnergyDB.energyColor)
-                            return r,g,b
+                        get = function()
+                            local r, g, b = unpack(NugEnergyDB.energyColor)
+                            return r, g, b
                         end,
-                        set = function(info, r, g, b)
+                        set = function(_, r, g, b)
                             NugEnergyDB.energyColor = { r, g, b }
+
                             if NugEnergy.class == "ROGUE" then
-                                NugEnergy.text:SetVertexColor(r,g,b)
+                                NugEnergy.text:SetVertexColor(r, g, b)
                             end
-                        end,
+                        end
                     },
                     rageColor = {
                         name = "Rage Color",
-                        type = 'color',
+                        type = "color",
                         desc = "rage color",
                         order = 2,
-                        get = function(info)
-                            local r,g,b = unpack(NugEnergyDB.rageColor)
-                            return r,g,b
+                        get = function()
+                            local r, g, b = unpack(NugEnergyDB.rageColor)
+                            return r, g, b
                         end,
-                        set = function(info, r, g, b)
+                        set = function(_, r, g, b)
                             NugEnergyDB.rageColor = { r, g, b }
+
                             if NugEnergy.class == "WARRIOR" then
-                                NugEnergy.text:SetVertexColor(r,g,b)
+                                NugEnergy.text:SetVertexColor(r, g, b)
                             end
-                        end,
+                        end
                     },
                     tickerColor = {
                         name = "Ticker Color",
-                        type = 'color',
+                        type = "color",
                         desc = "TickBar color",
                         order = 3,
-                        get = function(info)
-                            local r,g,b = unpack(NugEnergyDB.ticker.color)
-                            return r,g,b
+                        get = function()
+                            local r, g, b = unpack(NugEnergyDB.ticker.color)
+                            return r, g, b
                         end,
-                        set = function(info, r, g, b)
+                        set = function(_, r, g, b)
                             NugEnergyDB.ticker.color = { r, g, b }
+
                             if NugEnergy.class == "ROGUE" then
-                                NugEnergyTickerBar:SetVertexColor(r,g,b)
+                                NugEnergyTickerBar:SetVertexColor(r, g, b)
                             end
-                        end,
+                        end
                     },
                     tickeralphaBG = {
                         name = "Ticker BG alpha",
                         type = "range",
                         desc = "...",
                         order = 4,
-                        get = function(info) return NugEnergyDB.ticker.alphaBG end,
-                        set = function(info, s) NugEnergyDB.ticker.alphaBG = s; NugEnergyTickerBackground:SetTexture(0,0,0,NugEnergyDB.ticker.alphaBG) end,
+                        get = function()
+                            return NugEnergyDB.ticker.alphaBG
+                        end,
+                        set = function(_, s)
+                            NugEnergyDB.ticker.alphaBG = s
+                            NugEnergyTickerBackground:SetTexture(0, 0, 0, NugEnergyDB.ticker.alphaBG)
+                        end,
                         min = 0,
                         max = 1,
-                        step = 0.1,
-                    },
-                },
+                        step = 0.1
+                    }
+                }
             },
             tickerOpts = {
                 type = "group",
@@ -447,44 +469,64 @@ function NugEnergy.MakeOptions(self)
                         type = "range",
                         desc = "Horizontal offset, relative to main frame",
                         order = 1,
-                        get = function(info) return NugEnergyDB.ticker.offsetX end,
-                        set = function(info, s) NugEnergyDB.ticker.offsetX = s; NugEnergyTicker:SetPoint("CENTER",NugEnergy.frame,"CENTER",NugEnergyDB.ticker.offsetX,NugEnergyDB.ticker.offsetY); end,
+                        get = function()
+                            return NugEnergyDB.ticker.offsetX
+                        end,
+                        set = function(_, s)
+                            NugEnergyDB.ticker.offsetX = s
+                            NugEnergyTicker:SetPoint("CENTER", NugEnergy.frame, "CENTER", NugEnergyDB.ticker.offsetX,NugEnergyDB.ticker.offsetY)
+                        end,
                         min = -900,
                         max = 900,
-                        step = 5,
+                        step = 5
                     },
                     offsetY = {
                         name = "Offset Y",
                         type = "range",
                         desc = "Vertical offset, relative to main frame",
                         order = 2,
-                        get = function(info) return NugEnergyDB.ticker.offsetY end,
-                        set = function(info, s) NugEnergyDB.ticker.offsetY = s; NugEnergyTicker:SetPoint("CENTER",NugEnergy.frame,"CENTER",NugEnergyDB.ticker.offsetX,NugEnergyDB.ticker.offsetY); end,
+                        get = function()
+                            return NugEnergyDB.ticker.offsetY
+                        end,
+                        set = function(_, s)
+                            NugEnergyDB.ticker.offsetY = s
+                            NugEnergyTicker:SetPoint("CENTER", NugEnergy.frame, "CENTER", NugEnergyDB.ticker.offsetX, NugEnergyDB.ticker.offsetY)
+                        end,
                         min = -700,
                         max = 700,
-                        step = 5,
+                        step = 5
                     },
                     width = {
                         name = "Width",
                         type = "range",
                         desc = "ppc",
                         order = 3,
-                        get = function(info) return NugEnergyDB.ticker.width end,
-                        set = function(info, s) NugEnergyDB.ticker.width = s; NugEnergyTicker:SetWidth(NugEnergyDB.ticker.width) end,
+                        get = function()
+                            return NugEnergyDB.ticker.width
+                        end,
+                        set = function(_, s)
+                            NugEnergyDB.ticker.width = s
+                            NugEnergyTicker:SetWidth(NugEnergyDB.ticker.width)
+                        end,
                         min = 20,
                         max = 200,
-                        step = 2,
+                        step = 2
                     },
                     height = {
                         name = "Height",
                         type = "range",
                         desc = "eh",
                         order = 4,
-                        get = function(info) return NugEnergyDB.ticker.height end,
-                        set = function(info, s) NugEnergyDB.ticker.height = s; NugEnergyTicker:SetHeight(NugEnergyDB.ticker.height) end,
+                        get = function()
+                            return NugEnergyDB.ticker.height
+                        end,
+                        set = function(_, s)
+                            NugEnergyDB.ticker.height = s
+                            NugEnergyTicker:SetHeight(NugEnergyDB.ticker.height)
+                        end,
                         min = 2,
                         max = 100,
-                        step = 2,
+                        step = 2
                     },
                     texure = {
                         type = "select",
@@ -492,103 +534,96 @@ function NugEnergy.MakeOptions(self)
                         desc = "Choose ticker texture",
                         values = bars,
                         order = 5,
-                        get = function(info)
+                        get = function()
                             return NugEnergyDB.ticker.texture
                         end,
-                        set = function(info, s)
+                        set = function(_, s)
                             NugEnergyDB.ticker.texture = s
-                            NugEnergyTickerBar:SetTexture(media:Fetch('statusbar',NugEnergyDB.ticker.texture))
-                        end,
-                    },
-                },
-            },
-        },
+                            NugEnergyTickerBar:SetTexture(media:Fetch("statusbar", NugEnergyDB.ticker.texture))
+                        end
+                    }
+                }
+            }
+        }
     }
-    
+
     local Config = LibStub("AceConfigRegistry-3.0")
     local Dialog = LibStub("AceConfigDialog-3.0")
-    
-    Config:RegisterOptionsTable("NugEnergy-Bliz", {name = "NugEnergy",type = 'group',args = {} })
+
+    Config:RegisterOptionsTable("NugEnergy-Bliz", { name = "NugEnergy", type = "group", args = {} })
     Dialog:SetDefaultSize("NugEnergy-Bliz", 600, 400)
-    
+
     Config:RegisterOptionsTable("NugEnergy-General", opt.args.general)
     Dialog:AddToBlizOptions("NugEnergy-General", "NugEnergy")
-    
---~     LibStub("AceConfigDialog-3.0"):AddToBlizOptions("NugEnergy", "NugEnergy")
+
     SLASH_NESLASH1 = "/ne";
     SLASH_NESLASH2 = "/nugenergy";
-    SlashCmdList["NESLASH"] = function() InterfaceOptionsFrame_OpenToFrame("NugEnergy") end;
---~     SlashCmdList["NESLASH"] = function() LibStub("AceConfigDialog-3.0"):Open("NugEnergy") end;
+    SlashCmdList["NESLASH"] = function()
+        InterfaceOptionsFrame_OpenToFrame("NugEnergy")
+    end
 end
 
-function NugEnergy.CreateFrame(width,height,frameName)
-    local f = CreateFrame("Frame",frameName,UIParent);
+function NugEnergy.CreateFrame(width, height, frameName)
+    local f = CreateFrame("Frame",frameName,UIParent)
     f:SetFrameStrata("MEDIUM")
     f:SetWidth(width)
     f:SetHeight(height)
---~     local t = f:CreateTexture(nil,"BACKGROUND")
---~     t:SetAllPoints(f);
---~     t:SetTexture(1,1,1,1);
---~     f:EnableMouse(false)
-    f:SetPoint("CENTER",UIParent,"CENTER",NugEnergyDB.posX,NugEnergyDB.posY)
---~     f:SetScale(NugEnergyDB.scale)
+    f:SetPoint("CENTER", UIParent, "CENTER", NugEnergyDB.posX, NugEnergyDB.posY)
 
     text = f:CreateFontString(nil, "OVERLAY");
-    text:SetFont(media:Fetch('font',NugEnergyDB.font),NugEnergyDB.fontSize)
+    text:SetFont(media:Fetch("font", NugEnergyDB.font), NugEnergyDB.fontSize)
     text:ClearAllPoints()
     text:SetWidth(width)
     text:SetHeight(height)
-    text:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT",0,0)
+    text:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 0, 0)
     text:SetJustifyH(NugEnergyDB.align)
     text:SetVertexColor(unpack(NugEnergy.color))
-    
+
     NugEnergy.currentEnergy = 0
-    
+
     f:Hide()
     return f, text
 end
 
 
 function NugEnergy.CreateTickerFrame(frameName)
-    local f = CreateFrame("Frame",frameName,UIParent)
+    local f = CreateFrame("Frame", frameName, UIParent)
     f:SetFrameStrata("MEDIUM")
     f:SetWidth(NugEnergyDB.ticker.width)
     f:SetHeight(NugEnergyDB.ticker.height)
-    
-    f:SetPoint("CENTER",NugEnergy.frame,"CENTER",NugEnergyDB.ticker.offsetX,NugEnergyDB.ticker.offsetY)
---~     f:SetScale(NugEnergyDB.scale)
-    
-    local bg = f:CreateTexture(frameName.."Background","BACKGROUND")
+    f:SetPoint("CENTER", NugEnergy.frame, "CENTER", NugEnergyDB.ticker.offsetX, NugEnergyDB.ticker.offsetY)
+
+    local bg = f:CreateTexture(frameName .. "Background", "BACKGROUND")
     bg:SetWidth(NugEnergyDB.ticker.width)
     bg:SetHeight(NugEnergyDB.ticker.height)
-    bg:SetTexture(0,0,0,NugEnergyDB.ticker.alphaBG)
+    bg:SetTexture(0, 0, 0, NugEnergyDB.ticker.alphaBG)
     bg:SetAllPoints(f)
-    
-    local b = f:CreateTexture(frameName.."Bar","ARTWORK")
+
+    local b = f:CreateTexture(frameName .. "Bar", "ARTWORK")
     b:SetWidth(NugEnergyDB.ticker.width)
     b:SetHeight(NugEnergyDB.ticker.height)
---~     b:SetTexture("Interface\\Addons\\NugEnergy\\Aluminium")
---~     b:SetTexture(NugEnergyDB.ticker.texture)
-    b:SetTexture(media:Fetch('statusbar',NugEnergyDB.ticker.texture))
---~     b:SetAllPoints(f)
-    b:SetPoint("TOPLEFT",f,"TOPLEFT",0,0)
-    b:SetPoint("BOTTOMLEFT",f,"BOTTOMLEFT",0,0)
+    b:SetTexture(media:Fetch("statusbar", NugEnergyDB.ticker.texture))
+    b:SetPoint("TOPLEFT", f, "TOPLEFT", 0, 0)
+    b:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 0, 0)
     b:SetVertexColor(unpack(NugEnergyDB.ticker.color))
-    
+
     NugEnergy.lastTime = GetTime()
     NugEnergy.OnUpdate = function ()
         local now = GetTime()
+
         if now > NugEnergy.lastTime + 2 then
             NugEnergy.lastTime = now
         end
+
         local width = (GetTime() - NugEnergy.lastTime) * NugEnergyDB.ticker.width / 2
-        if width ~= 0 then
+
+        if width > 0 then
             NugEnergyTickerBar:SetWidth(width)
         end
     end
-    
-    f:SetScript("OnUpdate",NugEnergy.OnUpdate)
-    
+
+    f:SetScript("OnUpdate", NugEnergy.OnUpdate)
+
     f:Hide()
     return f
 end
