@@ -178,7 +178,7 @@ function NugEnergy.UPDATE_SHAPESHIFT_FORM()
 
     elseif NugEnergy.class == "DRUID" then
         local _, _, bear_active, _ = GetShapeshiftFormInfo(1)
-        local _, _, cat_active, _ = GetShapeshiftFormInfo(3)
+        local _, _, cat_active, _ = GetShapeshiftFormInfo(2)
 
         if bear_active == 1 then
             NugEnergy:RegisterEvent("UNIT_RAGE")
